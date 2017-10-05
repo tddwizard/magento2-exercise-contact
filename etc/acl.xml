@@ -1,0 +1,15 @@
+<?xml version="1.0" ?>
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Acl/etc/acl.xsd">
+	<acl>
+		<resources>
+			<resource id="Magento_Backend::admin">
+				<resource id="TddWizard_ExerciseContact::Inquiry" sortOrder="10" title="Inquiry">
+					<resource id="TddWizard_ExerciseContact::Inquiry_save" sortOrder="10" title="Save Inquiry"/>
+					<resource id="TddWizard_ExerciseContact::Inquiry_delete" sortOrder="20" title="Delete Inquiry"/>
+					<resource id="TddWizard_ExerciseContact::Inquiry_update" sortOrder="30" title="Update Inquiry"/>
+					<resource id="TddWizard_ExerciseContact::Inquiry_view" sortOrder="40" title="View Inquiry"/>
+				</resource>
+			</resource>
+		</resources>
+	</acl>
+</config>

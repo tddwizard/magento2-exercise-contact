@@ -1,0 +1,20 @@
+{
+    "name": "tddwizard/exercisecontact",
+    "description": "Integration test exercise 2: Contact form",
+    "authors": [
+        {
+            "name": "Mage2Gen",
+            "email": "info@mage2gen.com"
+        }
+    ],
+    "minimum-stability": "dev",
+    "require": {},
+    "autoload": {
+        "files": [
+            "registration.php"
+        ],
+        "psr-4": {
+            "TddWizard\\ExerciseContact\\": ""
+        }
+    }
+}
