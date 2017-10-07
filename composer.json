@@ -1,6 +1,6 @@
 {
-    "name": "tddwizard/exercisecontact",
-    "description": "Integration test exercise 2: Contact form",
+    "name": "tddwizard/exercise-contact",
+    "description": "Integration test exercise: Contact form",
     "authors": [
         {
             "name": "Mage2Gen",

@@ -1,4 +1,4 @@
-# Integration test exercise 2: Contact form
+# Integration test exercise: Contact form
 
 This is one of the exercise modules of the Test Driven Magento course.
 

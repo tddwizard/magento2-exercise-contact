@@ -12,6 +12,9 @@ use TddWizard\ExerciseContact\Api\Data\InquirySearchResultsInterface;
 use TddWizard\ExerciseContact\Api\InquiryRepositoryInterface;
 use TddWizard\ExerciseContact\Model\Inquiry;
 
+/**
+ * @magentoDbIsolation enabled
+ */
 class InquiryRepositoryTest extends TestCase
 {
     /**
@@ -52,7 +55,7 @@ class InquiryRepositoryTest extends TestCase
         $this->repository->deleteById($this->inquiry->getId());
     }
 
-    public function gestGetById()
+    public function testGetById()
     {
         $loadedInquiry = $this->repository->getById($this->inquiry->getId());
         $this->assertEquals('HALLO', $loadedInquiry->getMessage());
