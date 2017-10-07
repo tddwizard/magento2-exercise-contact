@@ -21,4 +21,6 @@
                 type="TddWizard\ExerciseContact\Model\Inquiry"/>
     <preference for="TddWizard\ExerciseContact\Api\InquiryRepositoryInterface"
                 type="TddWizard\ExerciseContact\Model\InquiryRepository"/>
+    <preference for="TddWizard\ExerciseContact\Api\Data\InquirySearchResultsInterface"
+                type="TddWizard\ExerciseContact\Model\ResourceModel\Inquiry\Collection"/>
 </config>
