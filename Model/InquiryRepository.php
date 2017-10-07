@@ -133,22 +133,9 @@ class InquiryRepository implements InquiryRepositoryInterface
         }
         $collection->setCurPage($criteria->getCurrentPage());
         $collection->setPageSize($criteria->getPageSize());
-        $items = [];
+
+        return $collection;
         
-        foreach ($collection as $inquiryModel) {
-            $inquiryData = $this->dataInquiryFactory->create();
-            $this->dataObjectHelper->populateWithArray(
-                $inquiryData,
-                $inquiryModel->getData(),
-                'TddWizard\ExerciseContact\Api\Data\InquiryInterface'
-            );
-            $items[] = $this->dataObjectProcessor->buildOutputDataArray(
-                $inquiryData,
-                'TddWizard\ExerciseContact\Api\Data\InquiryInterface'
-            );
-        }
-        $searchResults->setItems($items);
-        return $searchResults;
     }
 
     /**

@@ -8,6 +8,7 @@ use TddWizard\ExerciseContact\Api\Data\InquirySearchResultsInterface;
 
 class Collection extends AbstractCollection implements InquirySearchResultsInterface
 {
+    private $searchCriteria;
 
     /**
      * Define resource model
