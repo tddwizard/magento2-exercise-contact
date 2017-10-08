@@ -1,10 +1,12 @@
 <?php
 /** @var \Magento\Framework\View\Element\Template $block */
 ?>
-<form id="tddwizard_contact">
+<form id="tddwizard_contact" action="<?php echo $block->getUrl('exercise_contact/form/save') ?>">
     <label for="tddwizard_contact_email"><?php echo $block->escapeHtml(__('Your Email:')) ?></label>
     <input type="email" name="email" id="tddwizard_contact_email"/>
 
     <label for="tddwizard_contact_message"><?php echo $block->escapeHtml(__('Your Message:')) ?></label>
     <textarea name="message" id="tddwizard_contact_message"></textarea>
+
+    <button type="submit"><?php echo $block->escapeHtml(__('Send')) ?></button>
 </form>

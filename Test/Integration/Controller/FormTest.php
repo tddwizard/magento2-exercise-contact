@@ -22,12 +22,20 @@ class FormTest extends AbstractController
             "Form element should be found"
         );
         $this->assertDomElementPresent(
+            '//form[@id="tddwizard_contact"][contains(@action,"exercise_contact/form/save")]',
+            "Form action should be save action"
+        );
+        $this->assertDomElementPresent(
             '//form[@id="tddwizard_contact"]//input[@name="email"]',
             "Form should contain email input"
         );
         $this->assertDomElementPresent(
             '//form[@id="tddwizard_contact"]//textarea[@name="message"]',
             "Form should contain message input"
+        );
+        $this->assertDomElementPresent(
+            '//form[@id="tddwizard_contact"]//button[@type="submit"]',
+            "Form should contain submit button"
         );
     }
 
