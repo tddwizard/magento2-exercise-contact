@@ -2,12 +2,26 @@
 
 namespace TddWizard\ExerciseContact\Test\Integration\Controller\Frontend;
 
+use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Message\MessageInterface;
 use Magento\TestFramework\TestCase\AbstractController;
+use TddWizard\ExerciseContact\Api\InquiryRepositoryInterface;
+use TddWizard\ExerciseContact\Model\ResourceModel\Inquiry as InquiryResource;
 use TddWizard\ExerciseContact\Model\Session;
 
+/**
+ * @magentoDbIsolation enabled
+ */
 class SaveTest extends AbstractController
 {
+    protected function setUp()
+    {
+        parent::setUp();
+        /** @var InquiryResource $inquiryResource */
+        $inquiryResource = $this->_objectManager->create(InquiryResource::class);
+        $inquiryResource->getConnection()->truncateTable($inquiryResource->getMainTable());
+    }
+
     public static function dataInvalidInput()
     {
         return [
@@ -32,7 +46,7 @@ class SaveTest extends AbstractController
     /**
      * @magentoAppArea frontend
      */
-    public function testRedirectWithSuccessMessage()
+    public function testRedirectWithSuccessMessageAndInquiryIsSaved()
     {
         $this->getRequest()->setMethod('POST');
         $this->getRequest()->setPostValue('email', 'test@example.com');
@@ -44,13 +58,18 @@ class SaveTest extends AbstractController
             $this->equalTo(['We received your inquiry and will contact you shortly.']),
             MessageInterface::TYPE_SUCCESS
         );
+
+        /** @var InquiryRepositoryInterface $repository */
+        $repository = $this->_objectManager->get(InquiryRepositoryInterface::class);
+        $this->assertEquals(1, $repository->getList(new SearchCriteria())->getTotalCount());
     }
 
     /**
      * @dataProvider dataInvalidInput
      * @magentoAppArea frontend
      */
-    public function testRedirectWithErrorMessageOnInvalidInput($email, $message, $expectedErrorMessage)
+    public function testRedirectWithErrorMessageAndInquiryIsNotSavedOnInvalidInput($email, $message,
+        $expectedErrorMessage)
     {
         $this->getRequest()->setMethod('POST');
         $this->getRequest()->setPostValue('email', $email);
@@ -69,5 +88,9 @@ class SaveTest extends AbstractController
             $session->getSavedFormData(),
             'Form data should be saved in session after error'
         );
+
+        /** @var InquiryRepositoryInterface $repository */
+        $repository = $this->_objectManager->get(InquiryRepositoryInterface::class);
+        $this->assertEquals(0, $repository->getList(new SearchCriteria())->getTotalCount());
     }
 }

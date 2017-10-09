@@ -11,6 +11,7 @@ use TddWizard\ExerciseContact\Api\Data\InquiryInterface;
 use TddWizard\ExerciseContact\Api\Data\InquirySearchResultsInterface;
 use TddWizard\ExerciseContact\Api\InquiryRepositoryInterface;
 use TddWizard\ExerciseContact\Model\Inquiry;
+use TddWizard\ExerciseContact\Model\ResourceModel\Inquiry as InquiryResource;
 
 /**
  * @magentoDbIsolation enabled
@@ -43,6 +44,9 @@ class InquiryRepositoryTest extends TestCase
 
     private function setUpInquiryFixture()
     {
+        /** @var InquiryResource $inquiryResource */
+        $inquiryResource = $this->objectManager->create(InquiryResource::class);
+        $inquiryResource->getConnection()->truncateTable($inquiryResource->getMainTable());
         /** @var Inquiry $inquiry */
         $this->inquiry = $this->objectManager->create(InquiryInterface::class);
         $this->inquiry->setEmail('test@example.com');
