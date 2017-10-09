@@ -86,4 +86,12 @@ class InquiryRepositoryTest extends TestCase
             $this->assertEquals('test@example.com', $item->getEmail());
         }
     }
+
+    public function testGetByEmail()
+    {
+        $loadedInquiries = $this->repository->getByEmail('test@example.com');
+        $this->assertCount(1, $loadedInquiries);
+        $this->assertEquals('HALLO', $loadedInquiries[$this->inquiry->getId()]->getMessage());
+        $this->assertEquals('test@example.com', $loadedInquiries[$this->inquiry->getId()]->getEmail());
+    }
 }

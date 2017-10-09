@@ -33,8 +33,7 @@ class InquiryRepository implements InquiryRepositoryInterface
 
     protected $InquiryFactory;
 
-    protected $InquiryCollectionFactory;
-
+    protected $inquiryCollectionFactory;
 
     /**
      * @param ResourceInquiry $resource
@@ -98,6 +97,16 @@ class InquiryRepository implements InquiryRepositoryInterface
             throw new NoSuchEntityException(__('Inquiry with id "%1" does not exist.', $inquiryId));
         }
         return $inquiry;
+    }
+
+    /**
+     * {@inheritdoc}
+     */
+    public function getByEmail($email)
+    {
+        $collection = $this->inquiryCollectionFactory->create();
+        $collection->addFieldToFilter('email', $email);
+        return $collection->getItems();
     }
 
     /**

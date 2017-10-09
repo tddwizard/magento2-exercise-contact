@@ -4,6 +4,7 @@
 namespace TddWizard\ExerciseContact\Api;
 
 use Magento\Framework\Api\SearchCriteriaInterface;
+use TddWizard\ExerciseContact\Api\Data\InquiryInterface;
 
 interface InquiryRepositoryInterface
 {
@@ -30,12 +31,20 @@ interface InquiryRepositoryInterface
     public function getById($inquiryId);
 
     /**
+     * Retrieve Inquiries by email
+     *
+     * @param string $email
+     * @return InquiryInterface[]
+     */
+    public function getByEmail($email);
+
+    /**
      * Retrieve Inquiry matching the specified criteria.
      * @param \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
      * @return \TddWizard\ExerciseContact\Api\Data\InquirySearchResultsInterface
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    
+
     public function getList(
         \Magento\Framework\Api\SearchCriteriaInterface $searchCriteria
     );
@@ -46,7 +55,7 @@ interface InquiryRepositoryInterface
      * @return bool true on success
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    
+
     public function delete(
         \TddWizard\ExerciseContact\Api\Data\InquiryInterface $inquiry
     );
@@ -58,6 +67,6 @@ interface InquiryRepositoryInterface
      * @throws \Magento\Framework\Exception\NoSuchEntityException
      * @throws \Magento\Framework\Exception\LocalizedException
      */
-    
+
     public function deleteById($inquiryId);
 }
