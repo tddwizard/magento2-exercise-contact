@@ -7,10 +7,68 @@ use TddWizard\ExerciseContact\Model\Session;
 
 class FormTest extends AbstractController
 {
+    const XPATH_FORM = '//form[@id="tddwizard_contact"]';
+
     /**
      * @magentoAppArea frontend
      */
     public function testFormIsDisplayed()
+    {
+        $this->dispatchFormAction();
+        $this->assertFormRendered();
+        $this->assertDomElementPresent(
+            self::XPATH_FORM . '//input[@name="email"]',
+            "Form should contain email input"
+        );
+        $this->assertDomElementPresent(
+            self::XPATH_FORM . '//textarea[@name="message"]',
+            "Form should contain message input"
+        );
+    }
+
+    /**
+     * @magentoAppArea frontend
+     */
+    public function testFormIsFilledWithSavedSessionData()
+    {
+        /** @var Session $session */
+        $session = $this->_objectManager->get(Session::class);
+        $session->saveFormData(['email' => 'saved@example.com', 'message' => 'Saved Message']);
+        $this->dispatchFormAction();
+        $this->assertDomElementContains(
+            self::XPATH_FORM . '//input[@name="email"]',
+            'value="saved@example.com"'
+        );
+        $this->assertDomElementContains(
+            self::XPATH_FORM . '//textarea[@name="message"]',
+            'Saved Message'
+        );
+        $this->assertEmpty($session->getSavedFormData(), 'Saved form data should be removed from session');
+    }
+
+    /**
+     * @magentoAppArea frontend
+     * @magentoDataFixture Magento/Customer/_files/customer.php
+     */
+    public function testFormDoesNotContainEmailInputForLoggedInCustomer()
+    {
+        /** @var \Magento\Customer\Model\Session $customerSession */
+        $customerSession = $this->_objectManager->get(\Magento\Customer\Model\Session::class);
+        $customerSession->loginById(1);
+        $this->dispatchFormAction();
+        $this->assertFormRendered();
+        $this->assertDomElementPresent(
+            self::XPATH_FORM . '//textarea[@name="message"]',
+            "Form should contain message input"
+        );
+        $this->assertDomElementNotPresent(
+            self::XPATH_FORM . '//input[@name="email"]',
+            "Form should not contain email input"
+        );
+    }
+
+
+    private function dispatchFormAction()
     {
         $this->dispatch('exercise_contact/form');
         $this->assertEquals(
@@ -18,24 +76,20 @@ class FormTest extends AbstractController
             $this->getRequest()->getControllerName(),
             'Form controller should be dispatched successfully'
         );
+    }
+
+    private function assertFormRendered()
+    {
         $this->assertDomElementPresent(
-            '//form[@id="tddwizard_contact"]',
+            self::XPATH_FORM,
             "Form element should be found"
         );
         $this->assertDomElementPresent(
-            '//form[@id="tddwizard_contact"][contains(@action,"exercise_contact/form/save")]',
+            self::XPATH_FORM . '[contains(@action,"exercise_contact/form/save")]',
             "Form action should be save action"
         );
         $this->assertDomElementPresent(
-            '//form[@id="tddwizard_contact"]//input[@name="email"]',
-            "Form should contain email input"
-        );
-        $this->assertDomElementPresent(
-            '//form[@id="tddwizard_contact"]//textarea[@name="message"]',
-            "Form should contain message input"
-        );
-        $this->assertDomElementPresent(
-            '//form[@id="tddwizard_contact"]//button[@type="submit"]',
+            self::XPATH_FORM . '//button[@type="submit"]',
             "Form should contain submit button"
         );
     }
@@ -56,6 +110,11 @@ class FormTest extends AbstractController
         $this->assertEquals($expectedCount, (new \DOMXPath($dom))->query($xpath)->length, $message);
     }
 
+    private function assertDomElementContains(string $xpath, string $expectedString, string $message = '')
+    {
+        $dom = $this->getResponseDom();
+        $this->assertContains($expectedString, $dom->saveHTML((new \DOMXPath($dom))->query($xpath)->item(0)), $message);
+    }
     private function getResponseDom(): \DOMDocument
     {
         $dom = new \DOMDocument();
@@ -65,57 +124,4 @@ class FormTest extends AbstractController
         return $dom;
     }
 
-    /**
-     * @magentoAppArea frontend
-     */
-    public function testFormIsFilledWithSavedSessionData()
-    {
-        /** @var Session $session */
-        $session = $this->_objectManager->get(Session::class);
-        $session->saveFormData(['email' => 'saved@example.com', 'message' => 'Saved Message']);
-        $this->dispatch('exercise_contact/form');
-        $this->assertDomElementContains(
-            '//form[@id="tddwizard_contact"]//input[@name="email"]',
-            'value="saved@example.com"'
-        );
-        $this->assertDomElementContains(
-            '//form[@id="tddwizard_contact"]//textarea[@name="message"]',
-            'Saved Message'
-        );
-        $this->assertEmpty($session->getSavedFormData(), 'Saved form data should be removed from session');
-    }
-
-    /**
-     * @magentoAppArea frontend
-     * @magentoDataFixture Magento/Customer/_files/customer.php
-     */
-    public function testFormDoesNotContainEmailInputForLoggedInCustomer()
-    {
-        /** @var \Magento\Customer\Model\Session $customerSession */
-        $customerSession = $this->_objectManager->get(\Magento\Customer\Model\Session::class);
-        $customerSession->loginById(1);
-        $this->dispatch('exercise_contact/form');
-        $this->assertDomElementPresent(
-            '//form[@id="tddwizard_contact"][contains(@action,"exercise_contact/form/save")]',
-            "Form with save action should be present"
-        );
-        $this->assertDomElementPresent(
-            '//form[@id="tddwizard_contact"]//textarea[@name="message"]',
-            "Form should contain message input"
-        );
-        $this->assertDomElementPresent(
-            '//form[@id="tddwizard_contact"]//button[@type="submit"]',
-            "Form should contain submit button"
-        );
-        $this->assertDomElementNotPresent(
-            '//form[@id="tddwizard_contact"]//input[@name="email"]',
-            "Form should not contain email input"
-        );
-    }
-
-    private function assertDomElementContains(string $xpath, string $expectedString, string $message = '')
-    {
-        $dom = $this->getResponseDom();
-        $this->assertContains($expectedString, $dom->saveHTML((new \DOMXPath($dom))->query($xpath)->item(0)), $message);
-    }
 }

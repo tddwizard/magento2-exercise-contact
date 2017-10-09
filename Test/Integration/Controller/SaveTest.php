@@ -48,11 +48,7 @@ class SaveTest extends AbstractController
      */
     public function testRedirectWithSuccessMessageAndInquiryIsSaved()
     {
-        $this->getRequest()->setMethod('POST');
-        $this->getRequest()->setPostValue('email', 'test@example.com');
-        $this->getRequest()->setPostValue('message', 'Hello, World!');
-        $this->dispatch('exercise_contact/form/save');
-        $this->assertRedirect($this->stringContains('exercise_contact/form'));
+        $this->dispatchSaveAction('test@example.com', 'Hello, World!');
         $this->assertSessionMessages($this->isEmpty(), MessageInterface::TYPE_ERROR);
         $this->assertSessionMessages(
             $this->equalTo(['We received your inquiry and will contact you shortly.']),
@@ -73,10 +69,7 @@ class SaveTest extends AbstractController
         /** @var \Magento\Customer\Model\Session $customerSession */
         $customerSession = $this->_objectManager->get(\Magento\Customer\Model\Session::class);
         $customerSession->loginById(1);
-        $this->getRequest()->setMethod('POST');
-        $this->getRequest()->setPostValue('message', 'Hello, World!');
-        $this->dispatch('exercise_contact/form/save');
-        $this->assertRedirect($this->stringContains('exercise_contact/form'));
+        $this->dispatchSaveAction(null, 'Hello, World!');
         $this->assertSessionMessages($this->isEmpty(), MessageInterface::TYPE_ERROR);
         $this->assertSessionMessages(
             $this->equalTo(['We received your inquiry and will contact you shortly.']),
@@ -97,11 +90,7 @@ class SaveTest extends AbstractController
     public function testRedirectWithErrorMessageAndInquiryIsNotSavedOnInvalidInput($email, $message,
         $expectedErrorMessage)
     {
-        $this->getRequest()->setMethod('POST');
-        $this->getRequest()->setPostValue('email', $email);
-        $this->getRequest()->setPostValue('message', $message);
-        $this->dispatch('exercise_contact/form/save');
-        $this->assertRedirect($this->stringContains('exercise_contact/form'));
+        $this->dispatchSaveAction($email, $message);
         $this->assertSessionMessages($this->isEmpty(), MessageInterface::TYPE_SUCCESS);
         $this->assertSessionMessages(
             $this->equalTo([$expectedErrorMessage]),
@@ -118,5 +107,18 @@ class SaveTest extends AbstractController
         /** @var InquiryRepositoryInterface $repository */
         $repository = $this->_objectManager->get(InquiryRepositoryInterface::class);
         $this->assertEquals(0, $repository->getList(new SearchCriteria())->getTotalCount());
+    }
+
+    /**
+     * @param $email
+     * @param $message
+     */
+    private function dispatchSaveAction($email, $message)
+    {
+        $this->getRequest()->setMethod('POST');
+        $this->getRequest()->setPostValue('email', $email);
+        $this->getRequest()->setPostValue('message', $message);
+        $this->dispatch('exercise_contact/form/save');
+        $this->assertRedirect($this->stringContains('exercise_contact/form'));
     }
 }
