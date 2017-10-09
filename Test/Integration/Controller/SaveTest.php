@@ -65,6 +65,32 @@ class SaveTest extends AbstractController
     }
 
     /**
+     * @magentoAppArea frontend
+     * @magentoDataFixture Magento/Customer/_files/customer.php
+     */
+    public function testInquiryIsSavedWithCustomerEmailForLoggedInCustomer()
+    {
+        /** @var \Magento\Customer\Model\Session $customerSession */
+        $customerSession = $this->_objectManager->get(\Magento\Customer\Model\Session::class);
+        $customerSession->loginById(1);
+        $this->getRequest()->setMethod('POST');
+        $this->getRequest()->setPostValue('message', 'Hello, World!');
+        $this->dispatch('exercise_contact/form/save');
+        $this->assertRedirect($this->stringContains('exercise_contact/form'));
+        $this->assertSessionMessages($this->isEmpty(), MessageInterface::TYPE_ERROR);
+        $this->assertSessionMessages(
+            $this->equalTo(['We received your inquiry and will contact you shortly.']),
+            MessageInterface::TYPE_SUCCESS
+        );
+
+        /** @var InquiryRepositoryInterface $repository */
+        $repository = $this->_objectManager->get(InquiryRepositoryInterface::class);
+        $allInquiries = $repository->getList(new SearchCriteria());
+        $this->assertEquals(1, $allInquiries->getTotalCount());
+        $this->assertEquals('customer@example.com', array_values($allInquiries->getItems())[0]->getEmail());
+    }
+
+    /**
      * @dataProvider dataInvalidInput
      * @magentoAppArea frontend
      */

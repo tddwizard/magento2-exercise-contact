@@ -7,6 +7,7 @@ use Magento\Framework\App\Action\Context;
 use Magento\Framework\Controller\Result\Redirect;
 use Magento\Framework\Controller\ResultFactory;
 use Magento\Framework\Exception\ValidatorException;
+use Magento\Customer\Model\Session as CustomerSession;
 use TddWizard\ExerciseContact\Api\Data\InquiryInterfaceFactory;
 use TddWizard\ExerciseContact\Api\InquiryRepositoryInterface;
 use TddWizard\ExerciseContact\Model\Session;
@@ -26,15 +27,21 @@ class Save extends Action
      * @var InquiryInterfaceFactory
      */
     private $inquiryFactory;
+    /**
+     * @var CustomerSession
+     */
+    private $customerSession;
 
     public function __construct(
         Context $context,
         Session $session,
+        CustomerSession $customerSession,
         InquiryRepositoryInterface $inquiryRepository,
         InquiryInterfaceFactory $inquiryFactory)
     {
         parent::__construct($context);
         $this->session = $session;
+        $this->customerSession = $customerSession;
         $this->inquiryRepository = $inquiryRepository;
         $this->inquiryFactory = $inquiryFactory;
     }
@@ -44,7 +51,11 @@ class Save extends Action
         try {
             $this->validateRequest();
             $inquiry = $this->inquiryFactory->create();
-            $inquiry->setEmail($this->getRequest()->getParam('email'));
+            if ($this->customerSession->isLoggedIn()) {
+                $inquiry->setEmail($this->customerSession->getCustomer()->getEmail());
+            } else {
+                $inquiry->setEmail($this->getRequest()->getParam('email'));
+            }
             $inquiry->setMessage($this->getRequest()->getParam('message'));
             $this->inquiryRepository->save($inquiry);
             $this->messageManager->addSuccessMessage('We received your inquiry and will contact you shortly.');
@@ -57,7 +68,7 @@ class Save extends Action
 
     private function validateRequest()
     {
-        if (strpos($this->getRequest()->getParam('email'), '@') === false) {
+        if (! $this->customerSession->isLoggedIn() && strpos($this->getRequest()->getParam('email'), '@') === false) {
             throw new ValidatorException(__('Please enter a valid email address.'));
         }
         if (trim($this->getRequest()->getParam('message')) === '') {

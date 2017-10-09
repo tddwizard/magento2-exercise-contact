@@ -45,6 +45,11 @@ class FormTest extends AbstractController
         $this->assertDomElementCount($xpath, 1, $message);
     }
 
+    private function assertDomElementNotPresent(string $xpath, string $message = '')
+    {
+        $this->assertDomElementCount($xpath, 0, $message);
+    }
+
     private function assertDomElementCount(string $xpath, int $expectedCount, string $message = '')
     {
         $dom = $this->getResponseDom();
@@ -60,6 +65,9 @@ class FormTest extends AbstractController
         return $dom;
     }
 
+    /**
+     * @magentoAppArea frontend
+     */
     public function testFormIsFilledWithSavedSessionData()
     {
         /** @var Session $session */
@@ -75,6 +83,34 @@ class FormTest extends AbstractController
             'Saved Message'
         );
         $this->assertEmpty($session->getSavedFormData(), 'Saved form data should be removed from session');
+    }
+
+    /**
+     * @magentoAppArea frontend
+     * @magentoDataFixture Magento/Customer/_files/customer.php
+     */
+    public function testFormDoesNotContainEmailInputForLoggedInCustomer()
+    {
+        /** @var \Magento\Customer\Model\Session $customerSession */
+        $customerSession = $this->_objectManager->get(\Magento\Customer\Model\Session::class);
+        $customerSession->loginById(1);
+        $this->dispatch('exercise_contact/form');
+        $this->assertDomElementPresent(
+            '//form[@id="tddwizard_contact"][contains(@action,"exercise_contact/form/save")]',
+            "Form with save action should be present"
+        );
+        $this->assertDomElementPresent(
+            '//form[@id="tddwizard_contact"]//textarea[@name="message"]',
+            "Form should contain message input"
+        );
+        $this->assertDomElementPresent(
+            '//form[@id="tddwizard_contact"]//button[@type="submit"]',
+            "Form should contain submit button"
+        );
+        $this->assertDomElementNotPresent(
+            '//form[@id="tddwizard_contact"]//input[@name="email"]',
+            "Form should not contain email input"
+        );
     }
 
     private function assertDomElementContains(string $xpath, string $expectedString, string $message = '')
