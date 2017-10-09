@@ -11,6 +11,19 @@ use TddWizard\ExerciseContact\Api\InquiryRepositoryInterface;
  */
 class GridTest extends AbstractBackendController
 {
+    /**
+     * The resource used to authorize action
+     *
+     * @var string
+     */
+    protected $resource = 'TddWizard_ExerciseContact::Inquiry';
+
+    /**
+     * The uri at which to access the controller
+     *
+     * @var string
+     */
+    protected $uri = 'backend/tddwizard_exercisecontact/inquiry';
 
     protected function setUp()
     {
@@ -26,7 +39,7 @@ class GridTest extends AbstractBackendController
 
     public function testGridShowsSavedInquiry()
     {
-        $this->dispatch('backend/tddwizard_exercisecontact/inquiry');
+        $this->dispatch($this->uri);
         $this->assertContains('I should be visible in the grid', $this->getResponse()->getBody());
     }
 }
