@@ -5,6 +5,7 @@ namespace TddWizard\ExerciseContact\Test\Integration;
 use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\Search\FilterGroupBuilder;
 use Magento\Framework\Api\SearchCriteria;
+use Magento\Framework\Api\SearchCriteriaBuilder;
 use Magento\TestFramework\ObjectManager;
 use PHPUnit\Framework\TestCase;
 use TddWizard\ExerciseContact\Api\Data\InquiryInterface;
@@ -67,19 +68,10 @@ class InquiryRepositoryTest extends TestCase
 
     public function testGetList()
     {
-        /** @var FilterGroupBuilder $filterGroupBuilder */
-        $filterGroupBuilder = $this->objectManager->create(FilterGroupBuilder::class);
-        $filterGroupBuilder->addFilter(
-            new Filter(
-                [
-                    Filter::KEY_FIELD => 'email',
-                    Filter::KEY_VALUE => 'test@example.com'
-                ]
-            )
-        );
-        $searchCriteria = new SearchCriteria();
-        $searchCriteria->setFilterGroups([$filterGroupBuilder->create()]);
-        $list = $this->repository->getList($searchCriteria);
+        /** @var SearchCriteriaBuilder $searchCriteriaBuilder */
+        $searchCriteriaBuilder = $this->objectManager->create(SearchCriteriaBuilder::class);
+        $searchCriteriaBuilder->addFilter('email', 'test@example.com');
+        $list = $this->repository->getList($searchCriteriaBuilder->create());
         $this->assertInstanceOf(InquirySearchResultsInterface::class, $list);
         $this->assertCount(1, $list->getItems());
         foreach ($list->getItems() as $item) {
