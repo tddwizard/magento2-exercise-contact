@@ -7,7 +7,7 @@ abstract class Inquiry extends \Magento\Backend\App\Action
 {
 
     protected $_coreRegistry;
-    const ADMIN_RESOURCE = 'TddWizard_ExerciseContact::top_level';
+    const ADMIN_RESOURCE = 'TddWizard_ExerciseContact::Inquiry';
 
     /**
      * @param \Magento\Backend\App\Action\Context $context
@@ -28,7 +28,7 @@ abstract class Inquiry extends \Magento\Backend\App\Action
      */
     public function initPage($resultPage)
     {
-        $resultPage->setActiveMenu('Experius_Test::top_level')
+        $resultPage->setActiveMenu('TddWizard::top_level')
             ->addBreadcrumb(__('TddWizard'), __('TddWizard'))
             ->addBreadcrumb(__('Inquiry'), __('Inquiry'));
         return $resultPage;

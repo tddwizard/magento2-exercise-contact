@@ -1,7 +1,12 @@
 <?xml version="1.0" ?>
-<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
+<config xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+		xsi:noNamespaceSchemaLocation="urn:magento:module:Magento_Backend:etc/menu.xsd">
 	<menu>
-		<add id="TddWizard::top_level" module="TddWizard_ExerciseContact" resource="Magento_Backend::content" sortOrder="9999" title="TddWizard"/>
-		<add action="tddwizard_exercisecontact/inquiry/index" id="TddWizard::tddwizard_inquiry" module="TddWizard_ExerciseContact" parent="TddWizard::top_level" resource="Magento_Backend::content" sortOrder="9999" title="Inquiry"/>
+		<add id="TddWizard::top_level" module="TddWizard_ExerciseContact" resource="Magento_Backend::content"
+			 sortOrder="9999" title="TddWizard"/>
+		<add action="tddwizard_exercisecontact/inquiry/index" id="TddWizard::tddwizard_inquiry"
+			 module="TddWizard_ExerciseContact" parent="TddWizard::top_level"
+			 resource="TddWizard_ExerciseContact::Inquiry"
+			 sortOrder="9999" title="Inquiry"/>
 	</menu>
 </config>
