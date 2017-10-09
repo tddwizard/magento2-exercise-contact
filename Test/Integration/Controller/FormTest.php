@@ -3,6 +3,7 @@
 namespace TddWizard\ExerciseContact\Test\Integration\Controller\Frontend;
 
 use Magento\TestFramework\TestCase\AbstractController;
+use TddWizard\ExerciseContact\Model\Session;
 
 class FormTest extends AbstractController
 {
@@ -57,5 +58,28 @@ class FormTest extends AbstractController
         $dom->loadHTML($this->getResponse()->getBody());
         \libxml_use_internal_errors(false);
         return $dom;
+    }
+
+    public function testFormIsFilledWithSavedSessionData()
+    {
+        /** @var Session $session */
+        $session = $this->_objectManager->get(Session::class);
+        $session->saveFormData(['email' => 'saved@example.com', 'message' => 'Saved Message']);
+        $this->dispatch('exercise_contact/form');
+        $this->assertDomElementContains(
+            '//form[@id="tddwizard_contact"]//input[@name="email"]',
+            'value="saved@example.com"'
+        );
+        $this->assertDomElementContains(
+            '//form[@id="tddwizard_contact"]//textarea[@name="message"]',
+            'Saved Message'
+        );
+        $this->assertEmpty($session->getSavedFormData(), 'Saved form data should be removed from session');
+    }
+
+    private function assertDomElementContains(string $xpath, string $expectedString, string $message = '')
+    {
+        $dom = $this->getResponseDom();
+        $this->assertContains($expectedString, $dom->saveHTML((new \DOMXPath($dom))->query($xpath)->item(0)), $message);
     }
 }

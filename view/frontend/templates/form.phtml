@@ -1,12 +1,23 @@
 <?php
-/** @var \Magento\Framework\View\Element\Template $block */
+/** @var \TddWizard\ExerciseContact\Block\Form $block */
+$formData = $block->getSavedFormData();
 ?>
 <form id="tddwizard_contact" action="<?php echo $block->getUrl('exercise_contact/form/save') ?>">
+    <?php
+    /*
+     * In a real form, a form key would be added here and validated in the save controller!
+     *
+     * @todo add form key
+     */
+    ?>
     <label for="tddwizard_contact_email"><?php echo $block->escapeHtml(__('Your Email:')) ?></label>
-    <input type="email" name="email" id="tddwizard_contact_email"/>
+    <input type="email" name="email" id="tddwizard_contact_email"
+           value="<?php echo $block->escapeHtmlAttr($formData['email'] ?? '') ?>"/>
 
     <label for="tddwizard_contact_message"><?php echo $block->escapeHtml(__('Your Message:')) ?></label>
-    <textarea name="message" id="tddwizard_contact_message"></textarea>
+    <textarea name="message" id="tddwizard_contact_message"><?php
+        echo $block->escapeHtml($formData['message'] ?? '')
+    ?></textarea>
 
     <button type="submit"><?php echo $block->escapeHtml(__('Send')) ?></button>
 </form>

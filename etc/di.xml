@@ -23,4 +23,14 @@
                 type="TddWizard\ExerciseContact\Model\InquiryRepository"/>
     <preference for="TddWizard\ExerciseContact\Api\Data\InquirySearchResultsInterface"
                 type="TddWizard\ExerciseContact\Model\ResourceModel\Inquiry\Collection"/>
+    <virtualType name="TddWizard\ExerciseContact\Model\Session\Storage" type="Magento\Framework\Session\Storage">
+        <arguments>
+            <argument name="namespace" xsi:type="string">exercise_contact</argument>
+        </arguments>
+    </virtualType>
+    <type name="TddWizard\ExerciseContact\Model\Session">
+        <arguments>
+            <argument name="storage" xsi:type="object">TddWizard\ExerciseContact\Model\Session\Storage</argument>
+        </arguments>
+    </type>
 </config>

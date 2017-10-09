@@ -4,9 +4,31 @@ namespace TddWizard\ExerciseContact\Test\Integration\Controller\Frontend;
 
 use Magento\Framework\Message\MessageInterface;
 use Magento\TestFramework\TestCase\AbstractController;
+use TddWizard\ExerciseContact\Model\Session;
 
 class SaveTest extends AbstractController
 {
+    public static function dataInvalidInput()
+    {
+        return [
+            'empty email'   => [
+                '',
+                'Hello, World!',
+                'Please enter a valid email address.',
+            ],
+            'invalid email' => [
+                'test',
+                'Hello, World!',
+                'Please enter a valid email address.',
+            ],
+            'empty message' => [
+                'test@example.com',
+                ' ',
+                'Please enter a message.',
+            ],
+        ];
+    }
+
     /**
      * @magentoAppArea frontend
      */
@@ -23,26 +45,7 @@ class SaveTest extends AbstractController
             MessageInterface::TYPE_SUCCESS
         );
     }
-    public static function dataInvalidInput()
-    {
-        return [
-            'empty email' => [
-                '',
-                'Hello, World!',
-                'Please enter a valid email address.'
-            ],
-            'invalid email' => [
-                'test',
-                'Hello, World!',
-                'Please enter a valid email address.'
-            ],
-            'empty message' => [
-                'test@example.com',
-                ' ',
-                'Please enter a message.'
-            ],
-        ];
-    }
+
     /**
      * @dataProvider dataInvalidInput
      * @magentoAppArea frontend
@@ -58,6 +61,13 @@ class SaveTest extends AbstractController
         $this->assertSessionMessages(
             $this->equalTo([$expectedErrorMessage]),
             MessageInterface::TYPE_ERROR
+        );
+        /** @var Session $session */
+        $session = $this->_objectManager->get(Session::class);
+        $this->assertEquals(
+            ['email' => $email, 'message' => $message],
+            $session->getSavedFormData(),
+            'Form data should be saved in session after error'
         );
     }
 }

@@ -3,7 +3,8 @@
     <update handle="styles"/>
     <body>
         <referenceContainer name="content">
-            <block name="exercise_contact_form" template="TddWizard_ExerciseContact::form.phtml" class="Magento\Framework\View\Element\Template"/>
+            <block name="exercise_contact_form" template="TddWizard_ExerciseContact::form.phtml"
+                   class="TddWizard\ExerciseContact\Block\Form"/>
         </referenceContainer>
     </body>
 </page>
