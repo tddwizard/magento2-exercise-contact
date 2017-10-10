@@ -25,21 +25,7 @@ class SaveTest extends AbstractController
     public static function dataInvalidInput()
     {
         return [
-            'empty email'   => [
-                '',
-                'Hello, World!',
-                'Please enter a valid email address.',
-            ],
-            'invalid email' => [
-                'test',
-                'Hello, World!',
-                'Please enter a valid email address.',
-            ],
-            'empty message' => [
-                'test@example.com',
-                ' ',
-                'Please enter a message.',
-            ],
+            'empty message' => ['test@example.com', ' '],
         ];
     }
 
@@ -50,10 +36,7 @@ class SaveTest extends AbstractController
     {
         $this->dispatchSaveAction('test@example.com', 'Hello, World!');
         $this->assertSessionMessages($this->isEmpty(), MessageInterface::TYPE_ERROR);
-        $this->assertSessionMessages(
-            $this->equalTo(['We received your inquiry and will contact you shortly.']),
-            MessageInterface::TYPE_SUCCESS
-        );
+        $this->assertSessionMessages($this->logicalNot($this->isEmpty()), MessageInterface::TYPE_SUCCESS);
 
         /** @var InquiryRepositoryInterface $repository */
         $repository = $this->_objectManager->get(InquiryRepositoryInterface::class);
@@ -71,10 +54,7 @@ class SaveTest extends AbstractController
         $customerSession->loginById(1);
         $this->dispatchSaveAction(null, 'Hello, World!');
         $this->assertSessionMessages($this->isEmpty(), MessageInterface::TYPE_ERROR);
-        $this->assertSessionMessages(
-            $this->equalTo(['We received your inquiry and will contact you shortly.']),
-            MessageInterface::TYPE_SUCCESS
-        );
+        $this->assertSessionMessages($this->logicalNot($this->isEmpty()), MessageInterface::TYPE_SUCCESS);
 
         /** @var InquiryRepositoryInterface $repository */
         $repository = $this->_objectManager->get(InquiryRepositoryInterface::class);
@@ -87,15 +67,11 @@ class SaveTest extends AbstractController
      * @dataProvider dataInvalidInput
      * @magentoAppArea frontend
      */
-    public function testRedirectWithErrorMessageAndInquiryIsNotSavedOnInvalidInput($email, $message,
-        $expectedErrorMessage)
+    public function testRedirectWithErrorMessageAndInquiryIsNotSavedOnInvalidInput($email, $message)
     {
         $this->dispatchSaveAction($email, $message);
         $this->assertSessionMessages($this->isEmpty(), MessageInterface::TYPE_SUCCESS);
-        $this->assertSessionMessages(
-            $this->equalTo([$expectedErrorMessage]),
-            MessageInterface::TYPE_ERROR
-        );
+        $this->assertSessionMessages($this->logicalNot($this->isEmpty()), MessageInterface::TYPE_ERROR);
         /** @var Session $session */
         $session = $this->_objectManager->get(Session::class);
         $this->assertEquals(
