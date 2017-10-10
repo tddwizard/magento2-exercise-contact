@@ -16,34 +16,24 @@ use TddWizard\ExerciseContact\Service\CreateInquiry;
 class Save extends Action
 {
     /**
-     * @var Session
-     */
-    private $session;
-
-    /**
      * @var CreateInquiry
      */
     private $createInquiry;
 
     public function __construct(
         Context $context,
-        Session $session,
         CreateInquiry $createInquiry)
     {
         parent::__construct($context);
-        $this->session = $session;
         $this->createInquiry = $createInquiry;
     }
 
     public function execute()
     {
-        $createdInquiries = $this->createInquiry->createFromInput(
+        $this->createInquiry->createFromInput(
             $this->getRequest()->getParam('message'),
             $this->getRequest()->getParam('email')
         );
-        if ($createdInquiries === 0) {
-            $this->session->saveFormData((array)$this->getRequest()->getParams());
-        }
         return $this->redirectToForm();
     }
 

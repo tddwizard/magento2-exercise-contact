@@ -3,11 +3,12 @@
 namespace TddWizard\ExerciseContact\Test\Unit;
 
 use Magento\Customer\Model\Data\Customer;
-use Magento\Customer\Model\Session;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Message;
 use PHPUnit\Framework\TestCase;
 use TddWizard\ExerciseContact\Api\Data\InquiryInterfaceFactory;
 use TddWizard\ExerciseContact\Model\Inquiry;
+use TddWizard\ExerciseContact\Model\Session;
 use TddWizard\ExerciseContact\Service\CreateInquiry;
 
 class CreateInquiryTest extends TestCase
@@ -29,9 +30,13 @@ class CreateInquiryTest extends TestCase
      */
     private $inquiryStub;
     /**
+     * @var CustomerSession|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $customerSessionStub;
+    /**
      * @var Session|\PHPUnit_Framework_MockObject_MockObject
      */
-    private $sessionStub;
+    private $contactSessionMock;
     /**
      * @var Message\ManagerInterface|\PHPUnit_Framework_MockObject_MockObject
      */
@@ -43,10 +48,15 @@ class CreateInquiryTest extends TestCase
         $this->inquiryStub = $this->createPartialMock(Inquiry::class, []);
         $this->factoryStub = $this->createMock(InquiryInterfaceFactory::class);
         $this->factoryStub->method('create')->willReturn($this->inquiryStub);
-        $this->sessionStub = $this->createMock(Session::class);
+        $this->customerSessionStub = $this->createMock(CustomerSession::class);
+        $this->contactSessionMock = $this->createMock(Session::class);
         $this->messageManagerMock = $this->createMock(Message\ManagerInterface::class);
         $this->createInquiryService = new CreateInquiry(
-            $this->repository, $this->factoryStub, $this->sessionStub, $this->messageManagerMock
+            $this->repository,
+            $this->factoryStub,
+            $this->customerSessionStub,
+            $this->contactSessionMock,
+            $this->messageManagerMock
         );
     }
 
@@ -66,8 +76,8 @@ class CreateInquiryTest extends TestCase
         );
         $customerStub = $this->createMock(Customer::class);
         $customerStub->method('getEmail')->willReturn('customer@example.com');
-        $this->sessionStub->method('isLoggedIn')->willReturn(true);
-        $this->sessionStub->method('getCustomer')->willReturn($customerStub);
+        $this->customerSessionStub->method('isLoggedIn')->willReturn(true);
+        $this->customerSessionStub->method('getCustomer')->willReturn($customerStub);
         $this->assertEquals(1, $this->createInquiryService->createFromInput('Hallo'));
         $this->assertInquirySavedWithData('customer@example.com', 'Hallo');
     }
@@ -88,6 +98,12 @@ class CreateInquiryTest extends TestCase
     public function testInquiryIsNotSavedOnInvalidInput(string $message, string $email, string $expectedMessage)
     {
         $this->messageManagerMock->expects($this->once())->method('addErrorMessage')->with($expectedMessage);
+        $this->contactSessionMock->expects($this->once())->method('saveFormData')->with(
+            [
+                'email'   => $email,
+                'message' => $message,
+            ]
+        );
         $this->assertEquals(0, $this->createInquiryService->createFromInput($message, $email));
         $this->assertEmpty($this->repository->inquiries, 'No inquiry should be saved in repository');
     }

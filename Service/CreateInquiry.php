@@ -2,11 +2,12 @@
 
 namespace TddWizard\ExerciseContact\Service;
 
-use Magento\Customer\Model\Session;
+use Magento\Customer\Model\Session as CustomerSession;
 use Magento\Framework\Message;
+use TddWizard\ExerciseContact\Api\Data\InquiryInterface;
 use TddWizard\ExerciseContact\Api\Data\InquiryInterfaceFactory;
 use TddWizard\ExerciseContact\Api\InquiryRepositoryInterface;
-use TddWizard\ExerciseContact\Test\Unit\InquiryDummy;
+use TddWizard\ExerciseContact\Model\Session;
 
 class CreateInquiry
 {
@@ -19,23 +20,29 @@ class CreateInquiry
      */
     private $factory;
     /**
-     * @var Session
+     * @var CustomerSession
      */
     private $customerSession;
     /**
      * @var Message\ManagerInterface
      */
     private $messageManager;
+    /**
+     * @var Session
+     */
+    private $contactSession;
 
     public function __construct(
         InquiryRepositoryInterface $repository,
         InquiryInterfaceFactory $factory,
-        Session $customerSession,
+        CustomerSession $customerSession,
+        Session $contactSession,
         Message\ManagerInterface $messageManager)
     {
         $this->repository = $repository;
         $this->factory = $factory;
         $this->customerSession = $customerSession;
+        $this->contactSession = $contactSession;
         $this->messageManager = $messageManager;
     }
 
@@ -49,15 +56,13 @@ class CreateInquiry
         if ($this->customerSession->isLoggedIn()) {
             $email = $this->customerSession->getCustomer()->getEmail();
         }
-        if ($this->validate($message, $email)) {
-            $inquiry = $this->factory->create();
-            $inquiry->setEmail($email);
-            $inquiry->setMessage($message);
-            $this->repository->save($inquiry);
-            $this->messageManager->addSuccessMessage(__('We received your inquiry and will contact you shortly.'));
-            return 1;
+        if (! $this->validate($message, $email)) {
+            $this->contactSession->saveFormData(['email' => $email, 'message' => $message]);
+            return 0;
         }
-        return 0;
+        $this->repository->save($this->createInquiry($message, $email));
+        $this->messageManager->addSuccessMessage(__('We received your inquiry and will contact you shortly.'));
+        return 1;
     }
 
     private function validate(string $message, string $email = null)
@@ -71,5 +76,13 @@ class CreateInquiry
             return false;
         }
         return true;
+    }
+
+    private function createInquiry(string $message, string $email) : InquiryInterface
+    {
+        $inquiry = $this->factory->create();
+        $inquiry->setEmail($email);
+        $inquiry->setMessage($message);
+        return $inquiry;
     }
 }
