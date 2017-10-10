@@ -4,6 +4,7 @@ namespace TddWizard\ExerciseContact\Test\Unit;
 
 use Magento\Customer\Model\Data\Customer;
 use Magento\Customer\Model\Session;
+use Magento\Framework\Message;
 use PHPUnit\Framework\TestCase;
 use TddWizard\ExerciseContact\Api\Data\InquiryInterfaceFactory;
 use TddWizard\ExerciseContact\Model\Inquiry;
@@ -31,6 +32,10 @@ class CreateInquiryTest extends TestCase
      * @var Session|\PHPUnit_Framework_MockObject_MockObject
      */
     private $sessionStub;
+    /**
+     * @var Message\ManagerInterface|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $messageManagerMock;
 
     protected function setUp()
     {
@@ -39,17 +44,26 @@ class CreateInquiryTest extends TestCase
         $this->factoryStub = $this->createMock(InquiryInterfaceFactory::class);
         $this->factoryStub->method('create')->willReturn($this->inquiryStub);
         $this->sessionStub = $this->createMock(Session::class);
-        $this->createInquiryService = new CreateInquiry($this->repository, $this->factoryStub, $this->sessionStub);
+        $this->messageManagerMock = $this->createMock(Message\ManagerInterface::class);
+        $this->createInquiryService = new CreateInquiry(
+            $this->repository, $this->factoryStub, $this->sessionStub, $this->messageManagerMock
+        );
     }
 
     public function testNewInquiryIsPopulatedAndSaved()
     {
+        $this->messageManagerMock->expects($this->once())->method('addSuccessMessage')->with(
+            'We received your inquiry and will contact you shortly.'
+        );
         $this->createInquiryService->createFromInput('Hallo', 'ich@example.com');
         $this->assertInquirySavedWithData('ich@example.com', 'Hallo');
     }
 
     public function testNewInquiryIsSavedWithCustomerEmailAddress()
     {
+        $this->messageManagerMock->expects($this->once())->method('addSuccessMessage')->with(
+            'We received your inquiry and will contact you shortly.'
+        );
         $customerStub = $this->createMock(Customer::class);
         $customerStub->method('getEmail')->willReturn('customer@example.com');
         $this->sessionStub->method('isLoggedIn')->willReturn(true);
@@ -61,18 +75,19 @@ class CreateInquiryTest extends TestCase
     public static function dataInvalidInput()
     {
         return [
-            'no message' => ['', 'test@example.com'],
-            'empty message' => ['   ', 'test@example.com'],
-            'empty email' => ['Hello', ''],
-            'invalid email' => ['Hello', 'not an email'],
+            'no message'    => ['', 'test@example.com', 'Please enter a message.'],
+            'empty message' => ['   ', 'test@example.com', 'Please enter a message.'],
+            'empty email'   => ['Hello', '', 'Please enter a valid email address.'],
+            'invalid email' => ['Hello', 'not an email', 'Please enter a valid email address.'],
         ];
     }
 
     /**
      * @dataProvider dataInvalidInput
      */
-    public function testInquiryIsNotSavedOnInvalidInput(string $message, string $email)
+    public function testInquiryIsNotSavedOnInvalidInput(string $message, string $email, string $expectedMessage)
     {
+        $this->messageManagerMock->expects($this->once())->method('addErrorMessage')->with($expectedMessage);
         $this->createInquiryService->createFromInput($message, $email);
         $this->assertEmpty($this->repository->inquiries, 'No inquiry should be saved in repository');
     }
