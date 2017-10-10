@@ -2,6 +2,8 @@
 
 namespace TddWizard\ExerciseContact\Test\Unit;
 
+use Magento\Customer\Model\Data\Customer;
+use Magento\Customer\Model\Session;
 use PHPUnit\Framework\TestCase;
 use TddWizard\ExerciseContact\Api\Data\InquiryInterfaceFactory;
 use TddWizard\ExerciseContact\Model\Inquiry;
@@ -25,23 +27,35 @@ class CreateInquiryTest extends TestCase
      * @var Inquiry|\PHPUnit_Framework_MockObject_MockObject $inquiryFromFactory
      */
     private $inquiryStub;
+    /**
+     * @var Session|\PHPUnit_Framework_MockObject_MockObject
+     */
+    private $sessionStub;
 
     protected function setUp()
     {
         $this->repository = new Fake\InquiryMemoryRepository();
-        $this->factoryStub = $this->createMock(InquiryInterfaceFactory::class);
         $this->inquiryStub = $this->createPartialMock(Inquiry::class, []);
+        $this->factoryStub = $this->createMock(InquiryInterfaceFactory::class);
         $this->factoryStub->method('create')->willReturn($this->inquiryStub);
-        $this->createInquiryService = new CreateInquiry($this->repository, $this->factoryStub);
+        $this->sessionStub = $this->createMock(Session::class);
+        $this->createInquiryService = new CreateInquiry($this->repository, $this->factoryStub, $this->sessionStub);
     }
 
     public function testNewInquiryIsPopulatedAndSaved()
     {
         $this->createInquiryService->createFromInput('Hallo', 'ich@example.com');
+        $this->assertInquirySavedWithData('ich@example.com', 'Hallo');
+    }
 
-        $this->assertEquals('ich@example.com', $this->inquiryStub->getEmail());
-        $this->assertEquals('Hallo', $this->inquiryStub->getMessage());
-        $this->assertEquals([$this->inquiryStub], $this->repository->inquiries, 'Inquiry should be saved in repository');
+    public function testNewInquiryIsSavedWithCustomerEmailAddress()
+    {
+        $customerStub = $this->createMock(Customer::class);
+        $customerStub->method('getEmail')->willReturn('customer@example.com');
+        $this->sessionStub->method('isLoggedIn')->willReturn(true);
+        $this->sessionStub->method('getCustomer')->willReturn($customerStub);
+        $this->createInquiryService->createFromInput('Hallo');
+        $this->assertInquirySavedWithData('customer@example.com', 'Hallo');
     }
 
     public static function dataInvalidInput()
@@ -61,5 +75,16 @@ class CreateInquiryTest extends TestCase
     {
         $this->createInquiryService->createFromInput($message, $email);
         $this->assertEmpty($this->repository->inquiries, 'No inquiry should be saved in repository');
+    }
+
+    private function assertInquirySavedWithData($expectedEmail, $expectedMessage)
+    {
+        $this->assertEquals($expectedEmail, $this->inquiryStub->getEmail());
+        $this->assertEquals($expectedMessage, $this->inquiryStub->getMessage());
+        $this->assertEquals(
+            [$this->inquiryStub],
+            $this->repository->inquiries,
+            'Inquiry should be saved in repository'
+        );
     }
 }
