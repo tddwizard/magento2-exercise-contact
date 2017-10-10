@@ -11,6 +11,7 @@ use Magento\Customer\Model\Session as CustomerSession;
 use TddWizard\ExerciseContact\Api\Data\InquiryInterfaceFactory;
 use TddWizard\ExerciseContact\Api\InquiryRepositoryInterface;
 use TddWizard\ExerciseContact\Model\Session;
+use TddWizard\ExerciseContact\Service\CreateInquiry;
 
 class Save extends Action
 {
@@ -20,60 +21,30 @@ class Save extends Action
     private $session;
 
     /**
-     * @var InquiryRepositoryInterface
+     * @var CreateInquiry
      */
-    private $inquiryRepository;
-    /**
-     * @var InquiryInterfaceFactory
-     */
-    private $inquiryFactory;
-    /**
-     * @var CustomerSession
-     */
-    private $customerSession;
+    private $createInquiry;
 
     public function __construct(
         Context $context,
         Session $session,
-        CustomerSession $customerSession,
-        InquiryRepositoryInterface $inquiryRepository,
-        InquiryInterfaceFactory $inquiryFactory)
+        CreateInquiry $createInquiry)
     {
         parent::__construct($context);
         $this->session = $session;
-        $this->customerSession = $customerSession;
-        $this->inquiryRepository = $inquiryRepository;
-        $this->inquiryFactory = $inquiryFactory;
+        $this->createInquiry = $createInquiry;
     }
 
     public function execute()
     {
-        try {
-            $this->validateRequest();
-            $inquiry = $this->inquiryFactory->create();
-            if ($this->customerSession->isLoggedIn()) {
-                $inquiry->setEmail($this->customerSession->getCustomer()->getEmail());
-            } else {
-                $inquiry->setEmail($this->getRequest()->getParam('email'));
-            }
-            $inquiry->setMessage($this->getRequest()->getParam('message'));
-            $this->inquiryRepository->save($inquiry);
-            $this->messageManager->addSuccessMessage('We received your inquiry and will contact you shortly.');
-        } catch (ValidatorException $e) {
+        $createdInquiries = $this->createInquiry->createFromInput(
+            $this->getRequest()->getParam('message'),
+            $this->getRequest()->getParam('email')
+        );
+        if ($createdInquiries === 0) {
             $this->session->saveFormData((array)$this->getRequest()->getParams());
-            $this->messageManager->addErrorMessage($e->getMessage());
         }
         return $this->redirectToForm();
-    }
-
-    private function validateRequest()
-    {
-        if (! $this->customerSession->isLoggedIn() && strpos($this->getRequest()->getParam('email'), '@') === false) {
-            throw new ValidatorException(__('Please enter a valid email address.'));
-        }
-        if (trim($this->getRequest()->getParam('message')) === '') {
-            throw new ValidatorException(__('Please enter a message.'));
-        }
     }
 
     private function redirectToForm(): Redirect

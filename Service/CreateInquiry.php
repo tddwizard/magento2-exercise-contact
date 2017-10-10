@@ -39,7 +39,12 @@ class CreateInquiry
         $this->messageManager = $messageManager;
     }
 
-    public function createFromInput(string $message, string $email = null)
+    /**
+     * @param string $message Message from user input
+     * @param string|null $email Email address from user input
+     * @return int Number of created inquiries
+     */
+    public function createFromInput(string $message, string $email = null) : int
     {
         if ($this->customerSession->isLoggedIn()) {
             $email = $this->customerSession->getCustomer()->getEmail();
@@ -50,7 +55,9 @@ class CreateInquiry
             $inquiry->setMessage($message);
             $this->repository->save($inquiry);
             $this->messageManager->addSuccessMessage(__('We received your inquiry and will contact you shortly.'));
+            return 1;
         }
+        return 0;
     }
 
     private function validate(string $message, string $email = null)

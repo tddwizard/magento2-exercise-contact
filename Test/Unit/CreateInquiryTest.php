@@ -55,7 +55,7 @@ class CreateInquiryTest extends TestCase
         $this->messageManagerMock->expects($this->once())->method('addSuccessMessage')->with(
             'We received your inquiry and will contact you shortly.'
         );
-        $this->createInquiryService->createFromInput('Hallo', 'ich@example.com');
+        $this->assertEquals(1, $this->createInquiryService->createFromInput('Hallo', 'ich@example.com'));
         $this->assertInquirySavedWithData('ich@example.com', 'Hallo');
     }
 
@@ -68,7 +68,7 @@ class CreateInquiryTest extends TestCase
         $customerStub->method('getEmail')->willReturn('customer@example.com');
         $this->sessionStub->method('isLoggedIn')->willReturn(true);
         $this->sessionStub->method('getCustomer')->willReturn($customerStub);
-        $this->createInquiryService->createFromInput('Hallo');
+        $this->assertEquals(1, $this->createInquiryService->createFromInput('Hallo'));
         $this->assertInquirySavedWithData('customer@example.com', 'Hallo');
     }
 
@@ -88,7 +88,7 @@ class CreateInquiryTest extends TestCase
     public function testInquiryIsNotSavedOnInvalidInput(string $message, string $email, string $expectedMessage)
     {
         $this->messageManagerMock->expects($this->once())->method('addErrorMessage')->with($expectedMessage);
-        $this->createInquiryService->createFromInput($message, $email);
+        $this->assertEquals(0, $this->createInquiryService->createFromInput($message, $email));
         $this->assertEmpty($this->repository->inquiries, 'No inquiry should be saved in repository');
     }
 
