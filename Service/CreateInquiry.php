@@ -25,9 +25,22 @@ class CreateInquiry
 
     public function createFromInput(string $message, string $email = null)
     {
-        $inquiry = $this->factory->create();
-        $inquiry->setEmail($email);
-        $inquiry->setMessage($message);
-        $this->repository->save($inquiry);
+        if ($this->validate($message, $email)) {
+            $inquiry = $this->factory->create();
+            $inquiry->setEmail($email);
+            $inquiry->setMessage($message);
+            $this->repository->save($inquiry);
+        }
+    }
+
+    private function validate(string $message, string $email = null)
+    {
+        if (trim($message) === '') {
+            return false;
+        }
+        if (false === strpos($email, '@')) {
+            return false;
+        }
+        return true;
     }
 }
