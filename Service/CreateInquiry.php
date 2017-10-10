@@ -46,23 +46,17 @@ class CreateInquiry
         $this->messageManager = $messageManager;
     }
 
-    /**
-     * @param string $message Message from user input
-     * @param string|null $email Email address from user input
-     * @return int Number of created inquiries
-     */
-    public function createFromInput(string $message, string $email = null) : int
+    public function createFromInput(string $message, string $email = null)
     {
         if ($this->customerSession->isLoggedIn()) {
             $email = $this->customerSession->getCustomer()->getEmail();
         }
-        if (! $this->validate($message, $email)) {
+        if ($this->validate($message, $email)) {
+            $this->repository->save($this->createInquiry($message, $email));
+            $this->messageManager->addSuccessMessage(__('We received your inquiry and will contact you shortly.'));
+        } else {
             $this->contactSession->saveFormData(['email' => $email, 'message' => $message]);
-            return 0;
         }
-        $this->repository->save($this->createInquiry($message, $email));
-        $this->messageManager->addSuccessMessage(__('We received your inquiry and will contact you shortly.'));
-        return 1;
     }
 
     private function validate(string $message, string $email = null)
