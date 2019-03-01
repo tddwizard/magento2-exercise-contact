@@ -4,12 +4,14 @@ namespace TddWizard\ExerciseContact\Test\Integration\Controller\Frontend;
 
 use Magento\Framework\Api\SearchCriteria;
 use Magento\Framework\Message\MessageInterface;
+use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\TestCase\AbstractController;
 use TddWizard\ExerciseContact\Api\InquiryRepositoryInterface;
 use TddWizard\ExerciseContact\Model\ResourceModel\Inquiry as InquiryResource;
 use TddWizard\ExerciseContact\Model\Session;
 
 /**
+ * @magentoDataFixtureBeforeTransaction truncateInquiries
  * @magentoDbIsolation enabled
  */
 class SaveTest extends AbstractController
@@ -17,8 +19,12 @@ class SaveTest extends AbstractController
     protected function setUp()
     {
         parent::setUp();
+    }
+
+    public static function truncateInquiries()
+    {
         /** @var InquiryResource $inquiryResource */
-        $inquiryResource = $this->_objectManager->create(InquiryResource::class);
+        $inquiryResource = Bootstrap::getObjectManager()->create(InquiryResource::class);
         $inquiryResource->getConnection()->truncateTable($inquiryResource->getMainTable());
     }
 
