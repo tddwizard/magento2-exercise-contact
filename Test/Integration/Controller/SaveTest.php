@@ -3,11 +3,24 @@
 namespace TddWizard\ExerciseContact\Test\Integration\Controller\Frontend;
 
 use Magento\Framework\Message\MessageInterface;
+use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\TestCase\AbstractController;
 use TddWizard\ExerciseContact\Model\Session;
 
+/**
+ * @magentoDataFixtureBeforeTransaction truncateInquiries
+ * @magentoDbIsolation enabled
+ */
 class SaveTest extends AbstractController
 {
+
+    public static function truncateInquiries()
+    {
+        /** @var InquiryResource $inquiryResource */
+        $inquiryResource = Bootstrap::getObjectManager()->create(InquiryResource::class);
+        $inquiryResource->getConnection()->truncateTable($inquiryResource->getMainTable());
+    }
+
     public static function dataInvalidInput()
     {
         return [

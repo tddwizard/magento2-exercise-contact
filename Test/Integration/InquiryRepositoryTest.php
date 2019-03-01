@@ -5,6 +5,7 @@ namespace TddWizard\ExerciseContact\Test\Integration;
 use Magento\Framework\Api\Filter;
 use Magento\Framework\Api\Search\FilterGroupBuilder;
 use Magento\Framework\Api\SearchCriteria;
+use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\ObjectManager;
 use PHPUnit\Framework\TestCase;
 use TddWizard\ExerciseContact\Api\Data\InquiryInterface;
@@ -14,6 +15,7 @@ use TddWizard\ExerciseContact\Model\Inquiry;
 
 /**
  * @magentoDbIsolation enabled
+ * @magentoDataFixtureBeforeTransaction truncateInquiries
  */
 class InquiryRepositoryTest extends TestCase
 {
@@ -39,6 +41,13 @@ class InquiryRepositoryTest extends TestCase
         $this->repository = $this->objectManager->get(InquiryRepositoryInterface::class);
         $this->setUpInquiryFixture();
 
+    }
+
+    public static function truncateInquiries()
+    {
+        /** @var InquiryResource $inquiryResource */
+        $inquiryResource = Bootstrap::getObjectManager()->create(InquiryResource::class);
+        $inquiryResource->getConnection()->truncateTable($inquiryResource->getMainTable());
     }
 
     private function setUpInquiryFixture()
