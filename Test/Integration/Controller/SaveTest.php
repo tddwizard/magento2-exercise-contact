@@ -6,6 +6,7 @@ use Magento\Framework\Message\MessageInterface;
 use Magento\TestFramework\Helper\Bootstrap;
 use Magento\TestFramework\TestCase\AbstractController;
 use TddWizard\ExerciseContact\Model\Session;
+use TddWizard\ExerciseContact\Model\ResourceModel\Inquiry;
 
 /**
  * @magentoDataFixtureBeforeTransaction truncateInquiries
@@ -16,9 +17,9 @@ class SaveTest extends AbstractController
 
     public static function truncateInquiries()
     {
-        /** @var InquiryResource $inquiryResource */
-        $inquiryResource = Bootstrap::getObjectManager()->create(InquiryResource::class);
-        $inquiryResource->getConnection()->truncateTable($inquiryResource->getMainTable());
+        /** @var Inquiry $inquiry */
+        $inquiry = Bootstrap::getObjectManager()->create(Inquiry::class);
+        $inquiry->getConnection()->truncateTable($inquiry->getMainTable());
     }
 
     public static function dataInvalidInput()
