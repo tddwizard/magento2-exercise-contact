@@ -78,7 +78,7 @@ class SaveTest extends AbstractController
         );
         /** @var Session $session */
         $session = $this->_objectManager->get(Session::class);
-        $this->assertEquals(
+        $this->assertArraySubset(
             ['email' => $email, 'message' => $message],
             $session->getSavedFormData(),
             'Form data should be saved in session after error'
