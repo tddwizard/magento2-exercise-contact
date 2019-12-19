@@ -11,7 +11,7 @@ use PHPUnit\Framework\TestCase;
 use TddWizard\ExerciseContact\Api\Data\InquiryInterface;
 use TddWizard\ExerciseContact\Api\Data\InquirySearchResultsInterface;
 use TddWizard\ExerciseContact\Api\InquiryRepositoryInterface;
-use TddWizard\ExerciseContact\Model\Inquiry;
+use TddWizard\ExerciseContact\Model\ResourceModel\Inquiry;
 
 /**
  * @magentoDbIsolation enabled
@@ -45,9 +45,9 @@ class InquiryRepositoryTest extends TestCase
 
     public static function truncateInquiries()
     {
-        /** @var InquiryResource $inquiryResource */
-        $inquiryResource = Bootstrap::getObjectManager()->create(InquiryResource::class);
-        $inquiryResource->getConnection()->truncateTable($inquiryResource->getMainTable());
+        /** @var Inquiry $inquiry */
+        $inquiry = Bootstrap::getObjectManager()->create(Inquiry::class);
+        $inquiry->getConnection()->truncateTable($inquiry->getMainTable());
     }
 
     private function setUpInquiryFixture()
