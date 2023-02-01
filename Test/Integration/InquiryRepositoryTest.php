@@ -33,7 +33,7 @@ class InquiryRepositoryTest extends TestCase
      */
     private $inquiry;
 
-    protected function setUp()
+    protected function setUp(): void
     {
         $this->objectManager = ObjectManager::getInstance();
         /** @var InquiryRepositoryInterface $repository */
@@ -51,7 +51,7 @@ class InquiryRepositoryTest extends TestCase
         $this->repository->save($this->inquiry);
     }
 
-    protected function tearDown()
+    protected function tearDown(): void
     {
         $this->repository->deleteById($this->inquiry->getId());
     }
